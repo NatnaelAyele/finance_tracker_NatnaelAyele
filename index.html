@@ -96,10 +96,19 @@
                     <span id="date-error" role="alert"></span>
                 </div>
             </fieldset>
-
             <button type="submit">Save</button>
         </form>
-        
+
+        <section id="import-export">
+            <h3>Import / Export</h3>
+            <div class="import-export">
+                <button type="button" id="export-json">Export Data</button>
+                <input type="file" id="import-json" accept=".json" hidden>
+                <label for="import-json" class="import-btn">Import Data</label>
+                <input type="file" id="import-json" accept=".json" hidden>
+                <label for="import-json" class="import-btn">Import Sample-Data</label>
+            </div>
+        </section>
     </section>
 
     
