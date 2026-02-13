@@ -281,6 +281,19 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
+input.error,
+select.error {
+    border-color: #dc2626; 
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+span[role="alert"] {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
 button {
     padding: 0.75rem 1rem;
     border-radius: 6px;
@@ -343,7 +356,7 @@ a:focus,
 button:focus,
 input:focus,
 select:focus {
-    outline: 3px solid #f59e0b;
+    outline: 3px solid #5156af;
     outline-offset: 2px;
 }
 
