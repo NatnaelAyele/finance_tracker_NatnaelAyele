@@ -370,3 +370,22 @@ select:focus {
     border-radius: 10px;
     border: 1px solid #e5e7eb;
 }
+
+
+.sort-arrow {
+    cursor: pointer;
+    margin-left: 0.3rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+    user-select: none;
+}
+
+.sort-arrow.asc::after {
+    content: "↑";
+    margin-left: 0.2rem;
+}
+
+.sort-arrow.desc::after {
+    content: "↓";
+    margin-left: 0.2rem;
+}
