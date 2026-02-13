@@ -74,7 +74,7 @@ form.addEventListener("submit", function (event) {
 
     let transaction = {
         id: generateId(),
-        description: descriptionInput.value.trim(),
+        description: descriptionInput.value,
         amount: amountInput.value.trim(),
         category: categoryValue,
         date: dateInput.value.trim(),
@@ -153,10 +153,97 @@ function createRow(transaction) {
     return tr;
 }
 export function renderTransactions(transactionsArray) {
-    recordsBody.innerHTML = ""; 
+    recordsBody.innerHTML = "";
     transactionsArray.forEach(transaction => {
         const tr = createRow(transaction);
         recordsBody.appendChild(tr);
     });
 }
 renderTransactions(getTransactions());
+
+let currentSort = { key: "", ascending: true };
+
+function sortTransactions(transactions, key) {
+
+    let sorted = [];
+
+    for (let i = 0; i < transactions.length; i++) {
+        sorted.push(transactions[i]);
+    }
+
+    sorted.sort(function (a, b) {
+
+        let valA = a[key];
+        let valB = b[key];
+
+        if (key === "amount") {
+            valA = parseFloat(valA);
+            valB = parseFloat(valB);
+        }
+
+        if (key === "date") {
+            valA = new Date(valA);
+            valB = new Date(valB);
+        }
+
+        if (valA < valB) {
+            if (currentSort.ascending === true) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+
+        if (valA > valB) {
+            if (currentSort.ascending === true) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+
+        return 0;
+    });
+
+    return sorted;
+}
+
+
+const arrows = document.querySelectorAll(".sort-arrow");
+
+for (let i = 0; i < arrows.length; i++) {
+
+    let arrow = arrows[i];
+
+    arrow.addEventListener("click", function () {
+
+        let key = arrow.dataset.sort;
+
+        if (currentSort.key === key) {
+
+            if (currentSort.ascending === true) {
+                currentSort.ascending = false;
+            } else {
+                currentSort.ascending = true;
+            }
+
+        } else {
+            currentSort.key = key;
+            currentSort.ascending = true;
+        }
+
+        let sorted = sortTransactions(getTransactions(), key);
+        renderTransactions(sorted);
+
+        for (let j = 0; j < arrows.length; j++) {
+            arrows[j].classList.remove("asc");
+            arrows[j].classList.remove("desc");
+        }
+
+        if (currentSort.ascending === true) {
+            arrow.classList.add("asc");
+        } else {
+            arrow.classList.add("desc");
+        }
+    });
+}
