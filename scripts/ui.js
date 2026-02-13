@@ -1,5 +1,8 @@
 import { validateTransaction } from './validators.js';
 
+import { getTransactions, addTransaction, updateTransaction, deleteTransaction } from './state.js';
+
+
 if (window.location.hash === "") {
     window.location.hash = "#about";
 }
@@ -54,6 +57,11 @@ function showError(inputElement, errorElement, message) {
     }
 }
 
+
+function generateId() {
+    return 'txn_' + Date.now();
+}
+
 form.addEventListener("submit", function (event) {
 
     event.preventDefault();
@@ -65,10 +73,13 @@ form.addEventListener("submit", function (event) {
     }
 
     let transaction = {
-        description: descriptionInput.value,
+        id: generateId(),
+        description: descriptionInput.value.trim(),
         amount: amountInput.value.trim(),
         category: categoryValue,
-        date: dateInput.value.trim()
+        date: dateInput.value.trim(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
     };
 
     let errors = validateTransaction(transaction);
@@ -110,7 +121,8 @@ form.addEventListener("submit", function (event) {
         return;
     }
 
-    console.log("Transaction valid:", transaction);
+    addTransaction(transaction);
+    renderTransactions(getTransactions());
 
     form.reset();
 
@@ -122,3 +134,29 @@ form.addEventListener("submit", function (event) {
     categoryError.textContent = "";
     dateError.textContent = "";
 });
+
+const recordsBody = document.getElementById("records-body");
+
+function createRow(transaction) {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+        <td>${transaction.description}</td>
+        <td>${transaction.amount}</td>
+        <td>${transaction.category}</td>
+        <td>${transaction.date}</td>
+        <td>
+            <button class="edit-btn" data-id="${transaction.id}">Edit</button>
+            <button class="delete-btn" data-id="${transaction.id}">Delete</button>
+        </td>
+    `;
+    return tr;
+}
+export function renderTransactions(transactionsArray) {
+    recordsBody.innerHTML = ""; 
+    transactionsArray.forEach(transaction => {
+        const tr = createRow(transaction);
+        recordsBody.appendChild(tr);
+    });
+}
+renderTransactions(getTransactions());
