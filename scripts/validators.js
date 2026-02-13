@@ -44,7 +44,6 @@ export function validateAmount(amount) {
 }
 
 export function validateDate(date) {
-
     if (date === "" || date === null || date === undefined) {
         return "Date is required.";
     }
@@ -54,9 +53,18 @@ export function validateDate(date) {
     if (isValidDate === false) {
         return "Date must be in YYYY-MM-DD format.";
     }
+    let inputDate = new Date(date);
+    let today = new Date();
+    inputDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+
+    if (inputDate > today) {
+        return "Date cannot be in the future.";
+    }
 
     return "";
 }
+
 
 export function validateCategory(cat) {
 
