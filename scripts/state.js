@@ -1,10 +1,23 @@
-import { loadTransactions, saveTransactions } from './storage.js';
+import { loadTransactions, saveTransactions,loadBudgetFromStorage, saveBudgetToStorage } from './storage.js';
 
 let transactions = loadTransactions();
+let budgetCap = loadBudgetFromStorage();
+
 
 export function getTransactions() {
     return transactions;
 }
+
+export function getBudget() {
+    return budgetCap;
+}
+
+export function setBudget(amount) {
+    budgetCap = amount;
+    saveBudgetToStorage(amount);
+}
+
+
 
 export function addTransaction(transaction) {
     transactions.push(transaction);
