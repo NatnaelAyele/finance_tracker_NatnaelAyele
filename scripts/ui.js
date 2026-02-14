@@ -1,5 +1,5 @@
 import { validateTransaction } from './validators.js';
-import { getTransactions, addTransaction, updateTransaction, deleteTransaction } from './state.js';
+import { getTransactions, addTransaction, updateTransaction, deleteTransaction, getBudget, setBudget } from './state.js';
 
 if (window.location.hash === "") {
     window.location.hash = "#about";
@@ -96,6 +96,8 @@ form.addEventListener("submit", function (event) {
     }
 
     renderTransactions(getTransactions());
+    updateDashboard();
+
 
     form.reset();
     otherCategoryInput.style.display = "none";
@@ -109,7 +111,101 @@ form.addEventListener("submit", function (event) {
     updateFormHeading();
 });
 
-const recordsBody = document.getElementById("records-body");
+const recordsBody = document.getElementById("records-body");  
+const totalCountEl = document.getElementById("total-count");
+const totalSpentEl = document.getElementById("total-spent");
+const topCategoryEl = document.getElementById("top-category");
+const budgetCapInput = document.getElementById("budget-cap");
+const budgetStatusEl = document.getElementById("budget-status");
+const budgetValueEl = document.getElementById("budget-value");
+
+
+const saveBudgetBtn = document.getElementById("save-budget");
+
+let activeBudgetCap = NaN;
+
+const savedBudget = getBudget();
+if (savedBudget !== null && !isNaN(savedBudget)) {
+    budgetCapInput.value = savedBudget;
+}
+
+saveBudgetBtn.addEventListener("click", function() {
+    const inputValue = parseFloat(budgetCapInput.value);
+
+    if (!isNaN(inputValue) && inputValue > 0) {
+        setBudget(inputValue); 
+        updateDashboard();     
+        alert("Budget Saved Successfully!"); 
+    } else {
+        setBudget(null);
+        updateDashboard();
+        alert("Budget Cleared.");
+    }
+});
+
+function updateDashboard() {
+    const transactions = getTransactions();
+
+    totalCountEl.textContent = transactions.length;
+
+
+    let total = 0;
+    for (let i = 0; i < transactions.length; i++) {
+        total += parseFloat(transactions[i].amount);
+    }
+
+    totalSpentEl.textContent = total.toFixed(2);
+
+    if (transactions.length === 0) {
+        topCategoryEl.textContent = "None";
+    } else {
+        let categoryCount = {};
+
+        for (let i = 0; i < transactions.length; i++) {
+            let cat = transactions[i].category;
+            if (!categoryCount[cat]) {
+                categoryCount[cat] = 1;
+            } else {
+                categoryCount[cat]++;
+            }
+        }
+
+        let max = 0;
+        let topCategory = "None";
+
+        for (let cat in categoryCount) {
+            if (categoryCount[cat] > max) {
+                max = categoryCount[cat];
+                topCategory = cat;
+            }
+        }
+
+        topCategoryEl.textContent = topCategory;
+    }
+
+
+    let capValue = getBudget(); 
+    const total_ = parseFloat(totalSpentEl.textContent);
+
+    if (capValue !== null && !isNaN(capValue)) {
+        if (total_ > capValue) {
+            let over = (total_ - capValue).toFixed(2);
+            budgetStatusEl.setAttribute("aria-live", "assertive");
+            budgetValueEl.textContent = `Over budget by ${over}`;
+            budgetValueEl.style.color = "red"; 
+        } else {
+            let remaining = (capValue - total_).toFixed(2);
+            budgetStatusEl.setAttribute("aria-live", "polite");
+            budgetValueEl.textContent = `Remaining ${remaining}`;
+            budgetValueEl.style.color = "green"; 
+        }
+    } else {
+        budgetValueEl.textContent = "No cap set";
+        budgetValueEl.style.color = "inherit";
+    }
+}
+
+
 
 function createRow(transaction, highlightRegex = null) {
     function highlight(text) {
@@ -140,6 +236,7 @@ export function renderTransactions(transactionsArray, highlightRegex = null) {
 }
 
 renderTransactions(getTransactions());
+updateDashboard();
 
 recordsBody.addEventListener("click", function (event) {
     const target = event.target;
@@ -150,6 +247,7 @@ recordsBody.addEventListener("click", function (event) {
 
         deleteTransaction(id);
         renderTransactions(getTransactions());
+        updateDashboard();
         return;
     }
 
