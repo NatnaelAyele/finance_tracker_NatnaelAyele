@@ -137,14 +137,19 @@ form.addEventListener("submit", function (event) {
 
 const recordsBody = document.getElementById("records-body");
 
-function createRow(transaction) {
+function createRow(transaction, highlightRegex = null) {
+    function highlight(text) {
+        if (!highlightRegex) return text;
+        return String(text).replace(highlightRegex, match => `<mark>${match}</mark>`);
+    }
+
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-        <td>${transaction.description}</td>
-        <td>${transaction.amount}</td>
-        <td>${transaction.category}</td>
-        <td>${transaction.date}</td>
+        <td>${highlight(transaction.description)}</td>
+        <td>${highlight(transaction.amount)}</td>
+        <td>${highlight(transaction.category)}</td>
+        <td>${highlight(transaction.date)}</td>
         <td>
             <button class="edit-btn" data-id="${transaction.id}">Edit</button>
             <button class="delete-btn" data-id="${transaction.id}">Delete</button>
@@ -152,13 +157,20 @@ function createRow(transaction) {
     `;
     return tr;
 }
-export function renderTransactions(transactionsArray) {
+
+export function renderTransactions(transactionsArray, highlightRegex = null) {
     recordsBody.innerHTML = "";
     transactionsArray.forEach(transaction => {
-        const tr = createRow(transaction);
+        const tr = createRow(transaction, highlightRegex);
         recordsBody.appendChild(tr);
     });
 }
+
+function highlightMatch(text, regex) {
+    if (!regex) return text;
+    return String(text).replace(regex, match => `<mark>${match}</mark>`);
+}
+
 renderTransactions(getTransactions());
 
 let currentSort = { key: "", ascending: true };
