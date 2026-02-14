@@ -389,3 +389,7 @@ select:focus {
     content: "↓";
     margin-left: 0.2rem;
 }
+
+.save{
+    margin: 10px 1px;
+}
