@@ -25,7 +25,6 @@ export function updateTransaction(id, updatedTransaction) {
 
     if (indexFound !== -1) {
 
-        // Update each field manually
         if (updatedTransaction.description !== undefined) {
             transactions[indexFound].description = updatedTransaction.description;
         }
@@ -42,9 +41,12 @@ export function updateTransaction(id, updatedTransaction) {
             transactions[indexFound].date = updatedTransaction.date;
         }
 
+        transactions[indexFound].updatedAt = new Date().toISOString();
+
         saveTransactions(transactions);
     }
 }
+
 
 export function deleteTransaction(id) {
 
