@@ -118,11 +118,14 @@
         <h2 id="records-heading">Records</h2>
         <div id="search-regex">
             <label for="search">Search (Regex):</label>
-            <input type="text" id="search" name="search">
+            <input type="text" id="search" name="search" placeholder="enter pattern">
             <label>
                 <input type="checkbox" id="case-toggle">
                 Case insensitive
             </label>
+        </div>
+        <div aria-live="polite" role="status" id="search-status">
+            <!-- Search errors-->
         </div>
 
         <table>
@@ -140,10 +143,6 @@
                 <!-- Transaction record list here-->
             </tbody>
         </table>
-
-        <div aria-live="polite" role="status" id="search-status">
-            <!-- Search errors-->
-        </div>
     </section>
 
     <section id="settings" aria-labelledby="settings-heading">
@@ -180,5 +179,6 @@
 <script type="module" src="scripts/ui.js"></script>
 <script type="module" src="scripts/state.js"></script>
 <script type="module" src="scripts/storage.js"></script>
+<script type="module" src="scripts/search.js"></script>
 </body>
 </html>
