@@ -1,7 +1,5 @@
 import { validateTransaction } from './validators.js';
-
 import { getTransactions, addTransaction, updateTransaction, deleteTransaction } from './state.js';
-
 
 if (window.location.hash === "") {
     window.location.hash = "#about";
@@ -20,65 +18,54 @@ const amountError = document.getElementById("amount-error");
 const categoryError = document.getElementById("category-error");
 const dateError = document.getElementById("date-error");
 
+let isEditMode = false;
+let editTransactionId = null;
+
+function updateFormHeading() {
+    const heading = document.getElementById("form-heading");
+    heading.textContent = isEditMode ? "Edit Transaction" : "Add Transaction";
+}
 
 categoryInput.addEventListener("change", function () {
-
     if (categoryInput.value === "Other") {
-
         otherCategoryInput.disabled = false;
         otherCategoryInput.style.display = "block";
         otherCategoryInput.focus();
-
     } else {
-
         otherCategoryInput.disabled = true;
         otherCategoryInput.style.display = "none";
         otherCategoryInput.value = "";
-
         if (otherCategoryInput.classList.contains("error")) {
             otherCategoryInput.classList.remove("error");
         }
     }
 });
 
-
-
 function showError(inputElement, errorElement, message) {
-
     if (message !== "") {
-
         inputElement.classList.add("error");
         errorElement.textContent = message;
-
     } else {
-
         inputElement.classList.remove("error");
         errorElement.textContent = "";
     }
 }
-
 
 function generateId() {
     return 'txn_' + Date.now();
 }
 
 form.addEventListener("submit", function (event) {
-
     event.preventDefault();
 
     let categoryValue = categoryInput.value;
-
-    if (categoryValue === "Other") {
-        categoryValue = otherCategoryInput.value.trim();
-    }
+    if (categoryValue === "Other") categoryValue = otherCategoryInput.value.trim();
 
     let transaction = {
-        id: generateId(),
         description: descriptionInput.value,
         amount: amountInput.value.trim(),
         category: categoryValue,
         date: dateInput.value.trim(),
-        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
 
@@ -87,45 +74,30 @@ form.addEventListener("submit", function (event) {
     showError(descriptionInput, descriptionError, errors.description);
     showError(amountInput, amountError, errors.amount);
 
-    let categoryField;
-
-    if (categoryInput.value === "Other") {
-        categoryField = otherCategoryInput;
-    } else {
-        categoryField = categoryInput;
-    }
-
+    let categoryField = categoryInput.value === "Other" ? otherCategoryInput : categoryInput;
     showError(categoryField, categoryError, errors.category);
-
     showError(dateInput, dateError, errors.date);
 
-    let hasErrors = false;
+    if (errors.description || errors.amount || errors.category || errors.date) return;
 
-    if (errors.description !== "") {
-        hasErrors = true;
+    if (isEditMode && editTransactionId) {
+        const updatedTransaction = {
+            ...transaction,
+            id: editTransactionId,
+            createdAt: getTransactions().find(txn => txn.id === editTransactionId).createdAt
+        };
+        updateTransaction(editTransactionId, updatedTransaction);
+        isEditMode = false;
+        editTransactionId = null;
+    } else {
+        transaction.id = generateId();
+        transaction.createdAt = new Date().toISOString();
+        addTransaction(transaction);
     }
 
-    if (errors.amount !== "") {
-        hasErrors = true;
-    }
-
-    if (errors.category !== "") {
-        hasErrors = true;
-    }
-
-    if (errors.date !== "") {
-        hasErrors = true;
-    }
-
-    if (hasErrors === true) {
-        return;
-    }
-
-    addTransaction(transaction);
     renderTransactions(getTransactions());
 
     form.reset();
-
     otherCategoryInput.style.display = "none";
     otherCategoryInput.disabled = true;
 
@@ -133,6 +105,8 @@ form.addEventListener("submit", function (event) {
     amountError.textContent = "";
     categoryError.textContent = "";
     dateError.textContent = "";
+
+    updateFormHeading();
 });
 
 const recordsBody = document.getElementById("records-body");
@@ -144,7 +118,6 @@ function createRow(transaction, highlightRegex = null) {
     }
 
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
         <td>${highlight(transaction.description)}</td>
         <td>${highlight(transaction.amount)}</td>
@@ -166,25 +139,116 @@ export function renderTransactions(transactionsArray, highlightRegex = null) {
     });
 }
 
-function highlightMatch(text, regex) {
-    if (!regex) return text;
-    return String(text).replace(regex, match => `<mark>${match}</mark>`);
+renderTransactions(getTransactions());
+
+recordsBody.addEventListener("click", function (event) {
+    const target = event.target;
+    if (target.classList.contains("delete-btn")) {
+        const id = target.dataset.id;
+        const confirmDelete = confirm("Are you sure you want to delete this transaction?");
+        if (!confirmDelete) return;
+
+        deleteTransaction(id);
+        renderTransactions(getTransactions());
+        return;
+    }
+
+    if (target.classList.contains("edit-btn")) {
+        const id = target.dataset.id;
+        const transactionToEdit = getTransactions().find(txn => txn.id === id);
+        if (!transactionToEdit) return;
+
+        descriptionInput.value = transactionToEdit.description;
+        amountInput.value = transactionToEdit.amount;
+        dateInput.value = transactionToEdit.date;
+
+        if (categoryInput.querySelector(`option[value="${transactionToEdit.category}"]`)) {
+            categoryInput.value = transactionToEdit.category;
+            otherCategoryInput.style.display = "none";
+            otherCategoryInput.disabled = true;
+        } else {
+            categoryInput.value = "Other";
+            otherCategoryInput.style.display = "block";
+            otherCategoryInput.disabled = false;
+            otherCategoryInput.value = transactionToEdit.category;
+        }
+
+        isEditMode = true;
+        editTransactionId = id;
+        updateFormHeading();
+
+        window.location.hash = "#add-transaction";
+
+        updateView("#add-transaction"); 
+    }
+});
+
+function updateView(hash) {
+
+    const pages = document.querySelectorAll("main > section");
+    
+    pages.forEach(page => page.style.display = "none");
+
+    const targetId = hash.replace("#", "") || "about";
+    const targetSection = document.getElementById(targetId);
+
+    if (targetSection) {
+        targetSection.style.display = "block";
+    }
 }
 
-renderTransactions(getTransactions());
+let lastHash = window.location.hash || "#about";
+
+window.addEventListener("hashchange", () => {
+    const newHash = window.location.hash;
+
+    if (isEditMode) {
+        if (newHash === "#add-transaction") {
+            lastHash = newHash;
+            return;
+        }
+
+        const confirmDiscard = confirm("You have unsaved changes. Do you want to discard them?");
+        
+        if (confirmDiscard) {
+
+            isEditMode = false;
+            editTransactionId = null;
+            updateFormHeading();
+            form.reset();
+            otherCategoryInput.style.display = "none";
+            otherCategoryInput.disabled = true;
+            descriptionError.textContent = "";
+            amountError.textContent = "";
+            categoryError.textContent = "";
+            dateError.textContent = "";
+
+            updateView(newHash);
+            lastHash = newHash;
+
+        } else {
+
+            history.pushState(null, "", lastHash); 
+            updateView(lastHash);
+            return; 
+        }
+    } else {
+
+        updateView(newHash);
+        lastHash = newHash;
+    }
+
+    if (newHash === "#add-transaction" && !isEditMode) {
+        updateFormHeading();
+    }
+});
 
 let currentSort = { key: "", ascending: true };
 
 function sortTransactions(transactions, key) {
+    let sorted = [...transactions];
 
-    let sorted = [];
-
-    for (let i = 0; i < transactions.length; i++) {
-        sorted.push(transactions[i]);
-    }
-
-    sorted.sort(function (a, b) {
-
+    sorted.sort((a, b) => {
         let valA = a[key];
         let valB = b[key];
 
@@ -192,70 +256,29 @@ function sortTransactions(transactions, key) {
             valA = parseFloat(valA);
             valB = parseFloat(valB);
         }
-
         if (key === "date") {
             valA = new Date(valA);
             valB = new Date(valB);
         }
 
-        if (valA < valB) {
-            if (currentSort.ascending === true) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-
-        if (valA > valB) {
-            if (currentSort.ascending === true) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-
+        if (valA < valB) return currentSort.ascending ? -1 : 1;
+        if (valA > valB) return currentSort.ascending ? 1 : -1;
         return 0;
     });
 
     return sorted;
 }
 
-
 const arrows = document.querySelectorAll(".sort-arrow");
-
-for (let i = 0; i < arrows.length; i++) {
-
-    let arrow = arrows[i];
-
+arrows.forEach(arrow => {
     arrow.addEventListener("click", function () {
+        const key = arrow.dataset.sort;
+        currentSort.ascending = currentSort.key === key ? !currentSort.ascending : true;
+        currentSort.key = key;
 
-        let key = arrow.dataset.sort;
+        renderTransactions(sortTransactions(getTransactions(), key));
 
-        if (currentSort.key === key) {
-
-            if (currentSort.ascending === true) {
-                currentSort.ascending = false;
-            } else {
-                currentSort.ascending = true;
-            }
-
-        } else {
-            currentSort.key = key;
-            currentSort.ascending = true;
-        }
-
-        let sorted = sortTransactions(getTransactions(), key);
-        renderTransactions(sorted);
-
-        for (let j = 0; j < arrows.length; j++) {
-            arrows[j].classList.remove("asc");
-            arrows[j].classList.remove("desc");
-        }
-
-        if (currentSort.ascending === true) {
-            arrow.classList.add("asc");
-        } else {
-            arrow.classList.add("desc");
-        }
+        arrows.forEach(a => a.classList.remove("asc", "desc"));
+        arrow.classList.add(currentSort.ascending ? "asc" : "desc");
     });
-}
+});
