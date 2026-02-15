@@ -19,3 +19,33 @@ export function loadBudgetFromStorage() {
     const stored = localStorage.getItem('finance_budget');
     return stored ? parseFloat(stored) : null;
 }
+
+
+const RATE_KEY = "finance:rates";
+const DISPLAY_CURRENCY_KEY = "finance:displayCurrency";
+
+export function saveRates(rates) {
+    localStorage.setItem(RATE_KEY, JSON.stringify(rates));
+}
+
+export function loadRates() {
+
+    const data = localStorage.getItem(RATE_KEY);
+
+    if (data !== null) {
+        const parsedData = JSON.parse(data);
+        return parsedData;
+    } else {
+        const defaultRates = { EUR: 1, RWF: 1 };
+        return defaultRates;
+    }
+}
+
+
+export function saveDisplayCurrency(currency) {
+    localStorage.setItem(DISPLAY_CURRENCY_KEY, currency);
+}
+
+export function loadDisplayCurrency() {
+    return localStorage.getItem(DISPLAY_CURRENCY_KEY) || "USD";
+}
