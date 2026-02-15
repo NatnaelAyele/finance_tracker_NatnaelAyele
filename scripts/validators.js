@@ -1,6 +1,6 @@
 export const regex = {
     description: /^\S(?:.*\S)?$/,
-    amount: /^(0|[1-9]\d*)(\.\d{1,2})?$/,
+    amount: /^([1-9]\d*)(\.\d{1,2})?$/,
     date: /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
     category: /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/,
     duplicateWords: /\b(\w+)\s+\1\b/i
@@ -37,9 +37,8 @@ export function validateAmount(amount) {
     let isValidAmount = regex.amount.test(amount);
 
     if (isValidAmount === false) {
-        return "Amount must be a number (max 2 decimals).";
+        return "Amount must be a number greater than zero (max 2 decimals).";
     }
-
     return "";
 }
 
