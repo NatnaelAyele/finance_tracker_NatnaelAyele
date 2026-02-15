@@ -1,7 +1,11 @@
-import { loadTransactions, saveTransactions,loadBudgetFromStorage, saveBudgetToStorage } from './storage.js';
+import { loadTransactions, saveTransactions,loadBudgetFromStorage, saveBudgetToStorage, loadRates, saveRates, loadDisplayCurrency, saveDisplayCurrency  } from './storage.js';
 
 let transactions = loadTransactions();
 let budgetCap = loadBudgetFromStorage();
+
+let rates = loadRates();
+let displayCurrency = loadDisplayCurrency();
+
 
 
 export function getTransactions() {
@@ -80,3 +84,23 @@ export function clearTransactions() {
     transactions = [];
     saveTransactions(transactions);
 }
+
+
+export function getRates() {
+    return rates;
+}
+
+export function setRates(newRates) {
+    rates = newRates;
+    saveRates(newRates);
+}
+
+export function getDisplayCurrency() {
+    return displayCurrency;
+}
+
+export function setDisplayCurrency(currency) {
+    displayCurrency = currency;
+    saveDisplayCurrency(currency);
+}
+
