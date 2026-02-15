@@ -328,13 +328,13 @@ function createRow(transaction, highlightRegex = null) {
     }
 
     tr.innerHTML = `
-        <td>${highlight(transaction.description)}</td>
-        <td>${highlight(displayAmount.toFixed(2) + " " + currency)}</td>
-        <td>${highlight(transaction.category)}</td>
-        <td>${highlight(transaction.date)}</td>
+        <td data-label="Description" class="tdata">${highlight(transaction.description)}</td>
+        <td data-label="Amount" class="tdata">${highlight(displayAmount.toFixed(2) + " " + currency)}</td>
+        <td data-label="Category" class="tdata">${highlight(transaction.category)}</td>
+        <td data-label="Date" class="tdata">${highlight(transaction.date)}</td>
         <td>
-            <button class="edit-btn" data-id="${transaction.id}">Edit</button>
-            <button class="delete-btn" data-id="${transaction.id}">Delete</button>
+            <button class="edit-btn" data-id="${transaction.id}" data-label="Actions">Edit</button>
+            <button class="delete-btn" data-id="${transaction.id}" data-label="Actions">Delete</button>
         </td>
     `;
     return tr;
