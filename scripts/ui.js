@@ -1,5 +1,5 @@
 import { validateTransaction } from './validators.js';
-import { getTransactions, addTransaction, updateTransaction, deleteTransaction, getBudget, setBudget } from './state.js';
+import { getTransactions, addTransaction, updateTransaction, deleteTransaction, getBudget, setBudget,  getRates, setRates, getDisplayCurrency, setDisplayCurrency } from './state.js';
 
 if (window.location.hash === "") {
     window.location.hash = "#about";
@@ -17,6 +17,7 @@ const descriptionError = document.getElementById("description-error");
 const amountError = document.getElementById("amount-error");
 const categoryError = document.getElementById("category-error");
 const dateError = document.getElementById("date-error");
+const exportBtn = document.getElementById("export-json");
 
 let isEditMode = false;
 let editTransactionId = null;
@@ -122,7 +123,39 @@ const budgetValueEl = document.getElementById("budget-value");
 
 const saveBudgetBtn = document.getElementById("save-budget");
 
-let activeBudgetCap = NaN;
+
+
+const rateEurInput = document.getElementById("rate-eur");
+const rateRwfInput = document.getElementById("rate-rwf");
+const saveRateBtn = document.getElementById("save-rate");
+
+const currencySelect = document.querySelector("#currency-select select");
+const currentRates = getRates();
+rateEurInput.value = currentRates.EUR;
+rateRwfInput.value = currentRates.RWF;
+
+currencySelect.value = getDisplayCurrency();
+
+saveRateBtn.addEventListener("click", function () {
+    const eur = parseFloat(rateEurInput.value);
+    const rwf = parseFloat(rateRwfInput.value);
+
+    if (!isNaN(eur) && eur > 0 && !isNaN(rwf) && rwf > 0) {
+        setRates({ EUR: eur, RWF: rwf });
+        alert("Rates saved.");
+        updateDashboard();
+        renderTransactions(getTransactions());
+    } else {
+        alert("Enter valid rates.");
+    }
+});
+
+currencySelect.addEventListener("change", function () {
+    setDisplayCurrency(currencySelect.value);
+    updateDashboard();
+    renderTransactions(getTransactions());
+});
+
 
 const savedBudget = getBudget();
 if (savedBudget !== null && !isNaN(savedBudget)) {
@@ -148,19 +181,26 @@ function updateDashboard() {
 
     totalCountEl.textContent = transactions.length;
 
-
     let total = 0;
     for (let i = 0; i < transactions.length; i++) {
         total += parseFloat(transactions[i].amount);
     }
 
-    totalSpentEl.textContent = total.toFixed(2);
+    const currency = getDisplayCurrency();
+    const rates = getRates();
+
+    let convertedTotal = total;
+
+    if (currency !== "USD") {
+        convertedTotal = total * rates[currency];
+    }
+
+    totalSpentEl.textContent = convertedTotal.toFixed(2) + " " + currency;
 
     if (transactions.length === 0) {
         topCategoryEl.textContent = "None";
     } else {
         let categoryCount = {};
-
         for (let i = 0; i < transactions.length; i++) {
             let cat = transactions[i].category;
             if (!categoryCount[cat]) {
@@ -169,40 +209,102 @@ function updateDashboard() {
                 categoryCount[cat]++;
             }
         }
-
         let max = 0;
         let topCategory = "None";
-
         for (let cat in categoryCount) {
             if (categoryCount[cat] > max) {
                 max = categoryCount[cat];
                 topCategory = cat;
             }
         }
-
         topCategoryEl.textContent = topCategory;
     }
-
-
     let capValue = getBudget(); 
-    const total_ = parseFloat(totalSpentEl.textContent);
 
     if (capValue !== null && !isNaN(capValue)) {
-        if (total_ > capValue) {
-            let over = (total_ - capValue).toFixed(2);
+                let convertedCap = capValue;
+        if (currency !== "USD") {
+            convertedCap = capValue * rates[currency];
+        }
+
+        if (convertedTotal > convertedCap) {
+            let over = (convertedTotal - convertedCap).toFixed(2);
+            
             budgetStatusEl.setAttribute("aria-live", "assertive");
-            budgetValueEl.textContent = `Over budget by ${over}`;
+            budgetValueEl.textContent = `Over budget by ${over} ${currency}`;
             budgetValueEl.style.color = "red"; 
         } else {
-            let remaining = (capValue - total_).toFixed(2);
+            let remaining = (convertedCap - convertedTotal).toFixed(2);
+            
             budgetStatusEl.setAttribute("aria-live", "polite");
-            budgetValueEl.textContent = `Remaining ${remaining}`;
+            budgetValueEl.textContent = `Remaining ${remaining} ${currency}`;
             budgetValueEl.style.color = "green"; 
         }
     } else {
         budgetValueEl.textContent = "No cap set";
         budgetValueEl.style.color = "inherit";
     }
+
+    renderTrendChart();
+}
+
+function renderTrendChart() {
+    const trendContainer = document.getElementById("trend-chart");
+    if (!trendContainer) return;
+    const transactions = getTransactions();
+    trendContainer.innerHTML = "";
+
+    const currency = getDisplayCurrency();
+    const rates = getRates();
+
+    const today = new Date();
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        last7Days.push(d.toISOString().split("T")[0]);
+    }
+
+    const totalsByDate = {};
+    last7Days.forEach(date => { totalsByDate[date] = 0; });
+    transactions.forEach(txn => {
+        if (totalsByDate.hasOwnProperty(txn.date)) {
+            let amount = parseFloat(txn.amount);
+            if (currency !== "USD") {
+                amount = amount * rates[currency];
+            }
+            totalsByDate[txn.date] += amount;
+        }
+    });
+
+    const maxValue = Math.max(...Object.values(totalsByDate), 1);
+
+    Object.entries(totalsByDate).forEach(([date, amount]) => {
+        const dateObj = new Date(date);
+        const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
+        const row = document.createElement("div");
+        row.className = "chart-row";
+        const label = document.createElement("div");
+        label.className = "chart-label";
+        label.textContent = dayName;
+        const barContainer = document.createElement("div");
+        barContainer.className = "chart-bar-container";
+
+        const bar = document.createElement("div");
+        bar.className = "chart-bar";
+        const percentage = (amount / maxValue) * 100;
+        bar.style.width = `${percentage}%`;
+
+        barContainer.appendChild(bar);
+        const value = document.createElement("div");
+        value.className = "chart-value";
+        value.textContent = `${amount.toFixed(2)} ${currency}`;
+        row.appendChild(label);
+        row.appendChild(barContainer);
+        row.appendChild(value);
+
+        trendContainer.appendChild(row);
+    });
 }
 
 
@@ -214,9 +316,17 @@ function createRow(transaction, highlightRegex = null) {
     }
 
     const tr = document.createElement("tr");
+    const currency = getDisplayCurrency();
+    const rates = getRates();
+    let displayAmount = parseFloat(transaction.amount);
+
+    if (currency !== "USD") {
+        displayAmount = displayAmount * rates[currency];
+    }
+
     tr.innerHTML = `
         <td>${highlight(transaction.description)}</td>
-        <td>${highlight(transaction.amount)}</td>
+        <td>${highlight(displayAmount.toFixed(2) + " " + currency)}</td>
         <td>${highlight(transaction.category)}</td>
         <td>${highlight(transaction.date)}</td>
         <td>
@@ -379,4 +489,25 @@ arrows.forEach(arrow => {
         arrows.forEach(a => a.classList.remove("asc", "desc"));
         arrow.classList.add(currentSort.ascending ? "asc" : "desc");
     });
+});
+
+
+exportBtn.addEventListener("click", function () {
+    const transactions = getTransactions();
+
+    if (transactions.length === 0) {
+        alert("No transactions to export.");
+        return;
+    }
+    const dataStr = JSON.stringify(transactions, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    link.href = url;
+    link.download = `finance_export_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 });
