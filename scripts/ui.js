@@ -18,6 +18,9 @@ const amountError = document.getElementById("amount-error");
 const categoryError = document.getElementById("category-error");
 const dateError = document.getElementById("date-error");
 const exportBtn = document.getElementById("export-json");
+const importInput = document.getElementById("import-json");
+const loadSampleBtn = document.getElementById("import-sample");
+
 
 let isEditMode = false;
 let editTransactionId = null;
@@ -511,3 +514,94 @@ exportBtn.addEventListener("click", function () {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 });
+
+function validateAndProcessData(importedData, sourceName = "File") {
+    try {
+        if (!Array.isArray(importedData)) {
+            throw new Error("Invalid format: Data must be an array.");
+        }
+
+        const mandatoryKeys = ['description', 'amount', 'category', 'date'];
+        const allAllowedKeys = ['description', 'amount', 'category', 'date', 'id', 'createdAt', 'updatedAt'];
+        const today = new Date().toISOString().split('T')[0];
+        const descRegex = /^[A-Za-z\s-]+$/;
+
+        for (let i = 0; i < importedData.length; i++) {
+            const txn = importedData[i];
+            const txnKeys = Object.keys(txn);
+
+            const hasMandatory = mandatoryKeys.every(key => txn.hasOwnProperty(key) && String(txn[key]).trim() !== "");
+            const hasNoExtras = txnKeys.every(key => allAllowedKeys.includes(key));
+
+            if (!hasMandatory || !hasNoExtras) {
+                throw new Error(`${sourceName} item ${i + 1} has invalid structure or empty fields.`);
+            }
+
+            if (!descRegex.test(txn.description)) {
+                throw new Error(`${sourceName} item ${i + 1}: Description can only contain letters, spaces, or hyphens.`);
+            }
+
+            const numAmount = parseFloat(txn.amount);
+            if (isNaN(numAmount) || numAmount <= 0) {
+                throw new Error(`${sourceName} item ${i + 1}: Amount must be a positive number.`);
+            }
+
+            if (txn.date > today) {
+                throw new Error(`${sourceName} item ${i + 1}: Date cannot be in the future.`);
+            }
+        }
+
+        if (confirm(`Importing ${importedData.length} transactions from ${sourceName}. Continue?`)) {
+            const now = new Date().toISOString();
+            importedData.forEach(txn => {
+                addTransaction({
+                    description: txn.description.trim(),
+                    amount: parseFloat(txn.amount).toFixed(2),
+                    category: txn.category.trim(),
+                    date: txn.date,
+                    id: 'txn_' + Date.now() + Math.floor(Math.random() * 1000),
+                    createdAt: now,
+                    updatedAt: now
+                });
+            });
+
+            renderTransactions(getTransactions());
+            updateDashboard();
+            alert("Import successful!");
+        }
+    } catch (error) {
+        alert(`Import Failed: ${error.message}`);
+    }
+}
+
+importInput.addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            validateAndProcessData(JSON.parse(e.target.result), "Uploaded File");
+        } catch (err) { alert("Invalid JSON file."); }
+        importInput.value = "";
+    };
+    reader.readAsText(file);
+});
+
+loadSampleBtn.addEventListener("click", function() {
+    fetch('./seed.json')
+        .then(response => {
+            if (!response.ok) throw new Error("Could not find seed.json in the root folder.");
+            return response.json();
+        })
+        .then(data => {
+            validateAndProcessData(data, "Sample Data");
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error loading sample data: " + error.message);
+        });
+});
+
+
+
