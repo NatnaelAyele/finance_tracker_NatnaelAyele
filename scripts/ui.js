@@ -470,6 +470,9 @@ function sortTransactions(transactions, key) {
         if (key === "date") {
             valA = new Date(valA);
             valB = new Date(valB);
+        } else if (typeof valA === "string" && typeof valB === "string") {
+            valA = valA.toLowerCase();
+            valB = valB.toLowerCase();
         }
 
         if (valA < valB) return currentSort.ascending ? -1 : 1;
