@@ -8,7 +8,7 @@
 </head>
 <body>
 <div id="top-section">
-
+    <a href="#dashboard" class="skip-link">Skip to dashboard</a>
     <header>
         <h1>Student Finance Tracker</h1>
     </header>
@@ -28,7 +28,7 @@
     </nav>
 </div>
 
-<main>
+<main id="main-content">
 
     <section id="about">
         <h2>About</h2>
@@ -70,6 +70,8 @@
             <fieldset>
                 <legend>Transaction Details</legend>
                 <div>
+                    <div id="save-message" class="save-message" aria-live="polite"></div>
+
                     <label for="description">Description</label>
                     <input type="text" id="description" name="description">
                     <span id="description-error" role="alert"></span>
@@ -85,6 +87,7 @@
                         <option value="Other">Other</option>
                     </select>
 
+                    <label for="other-category" class="visually-hidden">Custom category</label>
                     <input type="text" id="other-category" placeholder="Enter custom category" style="display:none; margin-top:0.5rem;">
                     <span id="category-error" role="alert"></span>
                 </div>
@@ -151,7 +154,7 @@
     <section id="settings" aria-labelledby="settings-heading">
         <h2>Settings</h2>
         <section>
-           <h4>Base Currency: <em>USD</em></h4>
+           <h3>Base Currency: <em>USD</em></h3>
            <div>
                 <label for="rate-eur">EUR Rate</label>
                 <input type="number" id="rate-eur">
@@ -170,7 +173,6 @@
             <input type="number" id="budget-cap">
             <button type="button" class="save" id="save-budget">Save Budget</button>
         </section>
-    </section>
     </section>
 
 
