@@ -83,6 +83,22 @@ function generateId() {
     return 'txn_' + Date.now();
 }
 
+function showSaveMessage(text) {
+    const messageEl = document.getElementById("save-message");
+    messageEl.textContent = text;
+    messageEl.style.display = "block";
+
+   setTimeout(() => {
+        messageEl.style.animation = "fadeOut 0.5s forwards";
+    }, 2000);
+
+    setTimeout(() => {
+        messageEl.style.display = "none";
+        messageEl.style.animation = "fadeIn 0.3s forwards";
+    }, 2500);
+}
+
+
 form.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -117,10 +133,12 @@ form.addEventListener("submit", function (event) {
         updateTransaction(editTransactionId, updatedTransaction);
         isEditMode = false;
         editTransactionId = null;
+        showSaveMessage("Transaction updated successfully!");
     } else {
         transaction.id = generateId();
         transaction.createdAt = new Date().toISOString();
         addTransaction(transaction);
+         showSaveMessage("Transaction saved successfully!");
     }
 
     renderTransactions(getTransactions());
