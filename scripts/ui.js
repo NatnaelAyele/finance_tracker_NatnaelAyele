@@ -22,6 +22,30 @@ const importInput = document.getElementById("import-json");
 const loadSampleBtn = document.getElementById("import-sample");
 
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const navList = document.getElementById('nav-list');
+    const navLinks = navList.querySelectorAll('a');
+
+   
+    menuBtn.addEventListener('click', () => {
+        navList.classList.toggle('show');
+        const isExpanded = navList.classList.contains('show');
+        menuBtn.setAttribute('aria-expanded', isExpanded);
+    });
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                navList.classList.remove('show');
+                menuBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+});
+
+
+
 let isEditMode = false;
 let editTransactionId = null;
 
@@ -328,13 +352,13 @@ function createRow(transaction, highlightRegex = null) {
     }
 
     tr.innerHTML = `
-        <td data-label="Description" class="tdata">${highlight(transaction.description)}</td>
-        <td data-label="Amount" class="tdata">${highlight(displayAmount.toFixed(2) + " " + currency)}</td>
-        <td data-label="Category" class="tdata">${highlight(transaction.category)}</td>
-        <td data-label="Date" class="tdata">${highlight(transaction.date)}</td>
-        <td>
-            <button class="edit-btn" data-id="${transaction.id}" data-label="Actions">Edit</button>
-            <button class="delete-btn" data-id="${transaction.id}" data-label="Actions">Delete</button>
+        <td data-label="Description" >${highlight(transaction.description)}</td>
+        <td data-label="Amount">${highlight(displayAmount.toFixed(2) + " " + currency)}</td>
+        <td data-label="Category">${highlight(transaction.category)}</td>
+        <td data-label="Date">${highlight(transaction.date)}</td>
+        <td data-label="Actions">
+            <button class="edit-btn" data-id="${transaction.id}" >Edit</button>
+            <button class="delete-btn" data-id="${transaction.id}">Delete</button>
         </td>
     `;
     return tr;
