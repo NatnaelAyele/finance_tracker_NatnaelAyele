@@ -340,7 +340,39 @@ function createRow(transaction, highlightRegex = null) {
     return tr;
 }
 
+let currentSort = { key: "", ascending: true };
+
+function sortTransactions(transactions, key) {
+    let sorted = [...transactions];
+
+    sorted.sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+
+        if (key === "amount") {
+            valA = parseFloat(valA);
+            valB = parseFloat(valB);
+        }
+        if (key === "date") {
+            valA = new Date(valA);
+            valB = new Date(valB);
+        } else if (typeof valA === "string" && typeof valB === "string") {
+            valA = valA.toLowerCase();
+            valB = valB.toLowerCase();
+        }
+
+        if (valA < valB) return currentSort.ascending ? -1 : 1;
+        if (valA > valB) return currentSort.ascending ? 1 : -1;
+        return 0;
+    });
+
+    return sorted;
+}
+
 export function renderTransactions(transactionsArray, highlightRegex = null) {
+    if (currentSort.key) {
+        transactionsArray = sortTransactions(transactionsArray, currentSort.key);
+    }
     recordsBody.innerHTML = "";
     transactionsArray.forEach(transaction => {
         const tr = createRow(transaction, highlightRegex);
@@ -359,7 +391,14 @@ recordsBody.addEventListener("click", function (event) {
         if (!confirmDelete) return;
 
         deleteTransaction(id);
-        renderTransactions(getTransactions());
+        const searchInput = document.getElementById("search");
+        
+        if (searchInput && searchInput.value.trim() !== "") {
+            searchInput.dispatchEvent(new Event('input'));
+        } else {
+            renderTransactions(getTransactions());
+        }
+
         updateDashboard();
         return;
     }
@@ -454,46 +493,21 @@ window.addEventListener("hashchange", () => {
     }
 });
 
-let currentSort = { key: "", ascending: true };
-
-function sortTransactions(transactions, key) {
-    let sorted = [...transactions];
-
-    sorted.sort((a, b) => {
-        let valA = a[key];
-        let valB = b[key];
-
-        if (key === "amount") {
-            valA = parseFloat(valA);
-            valB = parseFloat(valB);
-        }
-        if (key === "date") {
-            valA = new Date(valA);
-            valB = new Date(valB);
-        } else if (typeof valA === "string" && typeof valB === "string") {
-            valA = valA.toLowerCase();
-            valB = valB.toLowerCase();
-        }
-
-        if (valA < valB) return currentSort.ascending ? -1 : 1;
-        if (valA > valB) return currentSort.ascending ? 1 : -1;
-        return 0;
-    });
-
-    return sorted;
-}
-
 const arrows = document.querySelectorAll(".sort-arrow");
 arrows.forEach(arrow => {
     arrow.addEventListener("click", function () {
         const key = arrow.dataset.sort;
         currentSort.ascending = currentSort.key === key ? !currentSort.ascending : true;
         currentSort.key = key;
-
-        renderTransactions(sortTransactions(getTransactions(), key));
-
         arrows.forEach(a => a.classList.remove("asc", "desc"));
         arrow.classList.add(currentSort.ascending ? "asc" : "desc");
+
+        const searchInput = document.getElementById("search");
+        if (searchInput && searchInput.value.trim() !== "") {
+            searchInput.dispatchEvent(new Event('input'));
+        } else {
+            renderTransactions(getTransactions());
+        }
     });
 });
 
@@ -605,6 +619,3 @@ loadSampleBtn.addEventListener("click", function() {
             alert("Error loading sample data: " + error.message);
         });
 });
-
-
-
