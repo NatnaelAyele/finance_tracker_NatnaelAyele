@@ -36,7 +36,7 @@ export function loadRates() {
         const parsedData = JSON.parse(data);
         return parsedData;
     } else {
-        const defaultRates = { EUR: 1, RWF: 1 };
+        const defaultRates = { EUR: 0.8, RWF: 1450.8 };
         return defaultRates;
     }
 }
