@@ -402,15 +402,6 @@ select:focus {
     user-select: none;
 }
 
-.sort-arrow.asc::after {
-    content: "↑";
-    margin-left: 0.2rem;
-}
-
-.sort-arrow.desc::after {
-    content: "↓";
-    margin-left: 0.2rem;
-}
 
 .save{
     margin: 10px 1px;

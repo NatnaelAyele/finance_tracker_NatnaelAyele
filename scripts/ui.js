@@ -536,22 +536,61 @@ window.addEventListener("hashchange", () => {
 });
 
 const arrows = document.querySelectorAll(".sort-arrow");
+
 arrows.forEach(arrow => {
-    arrow.addEventListener("click", function () {
+    arrow.setAttribute("tabindex", "0");
+    const sortHandler = () => {
         const key = arrow.dataset.sort;
-        currentSort.ascending = currentSort.key === key ? !currentSort.ascending : true;
+
+        currentSort.ascending =
+            currentSort.key === key ? !currentSort.ascending : true;
+
         currentSort.key = key;
-        arrows.forEach(a => a.classList.remove("asc", "desc"));
+
+        arrows.forEach(a => {
+            a.classList.remove("asc", "desc");
+
+            const field = a.dataset.sort;
+            if (field === "description" || field === "category") {
+                a.textContent = "A↕Z";
+            } else {
+                a.textContent = "⇅";
+            }
+
+            a.removeAttribute("aria-sort");
+        });
+
         arrow.classList.add(currentSort.ascending ? "asc" : "desc");
+
+        if (key === "description" || key === "category") {
+            arrow.textContent = currentSort.ascending ? "A→Z" : "Z→A";
+        } else {
+            arrow.textContent = currentSort.ascending ? "↑" : "↓";
+        }
+
+        arrow.setAttribute(
+            "aria-sort",
+            currentSort.ascending ? "ascending" : "descending"
+        );
 
         const searchInput = document.getElementById("search");
         if (searchInput && searchInput.value.trim() !== "") {
-            searchInput.dispatchEvent(new Event('input'));
+            searchInput.dispatchEvent(new Event("input"));
         } else {
             renderTransactions(getTransactions());
         }
+    };
+
+    arrow.addEventListener("click", sortHandler);
+
+    arrow.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            sortHandler();
+        }
     });
 });
+
 
 
 exportBtn.addEventListener("click", function () {
