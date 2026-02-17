@@ -707,6 +707,7 @@ function validateAndProcessData(importedData, sourceName = "File") {
         const allAllowedKeys = ['description', 'amount', 'category', 'date', 'id', 'createdAt', 'updatedAt'];
         const today = new Date().toISOString().split('T')[0];
         const descRegex = /^[A-Za-z\s-]+$/;
+        const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 
         // Loop through each transaction to validate
@@ -737,6 +738,9 @@ function validateAndProcessData(importedData, sourceName = "File") {
 
             if (txn.date > today) {
                 throw new Error(`${sourceName} item ${i + 1}: Date cannot be in the future.`);
+            }
+            if (!dateRegex.test(txn.date)) {
+                throw new Error(`${sourceName} item ${i + 1}: Date must be in yyyy/mm/dd format.`);
             }
         }
 
