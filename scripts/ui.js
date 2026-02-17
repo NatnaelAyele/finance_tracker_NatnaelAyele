@@ -726,8 +726,8 @@ function validateAndProcessData(importedData, sourceName = "File") {
                 throw new Error(`${sourceName} item ${i + 1} has invalid structure or empty fields.`);
             }
 
-            if (!descRegex.test(txn.description)) {
-                throw new Error(`${sourceName} item ${i + 1}: Description can only contain letters, spaces, or hyphens.`);
+            if (!descRegex.test(txn.category)) {
+                throw new Error(`${sourceName} item ${i + 1}: catagory can only contain letters, spaces, or hyphens.`);
             }
 
             const numAmount = parseFloat(txn.amount);
