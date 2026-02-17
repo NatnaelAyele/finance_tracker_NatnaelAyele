@@ -2,7 +2,7 @@
 
 A **web-based application** for students to track their expenses, manage budgets, and analyze spending trends. Built with HTML, CSS, and JavaScript, featuring modular architecture, validation, and accessibility-focused design.
 
-# Demo Link:
+# Demo Video Link:
 # Live website:
 
 
