@@ -1,0 +1,86 @@
+[
+  {
+    "description": "Lunch at cafeteria",
+    "amount": 12.50,
+    "category": "Food",
+    "date": "2025-09-25"
+  },
+  {
+    "id": "txn_002",
+    "description": "Chemistry textbook",
+    "amount": 89.99,
+    "category": "Books",
+    "date": "1990-09-23",
+    "createdAt": "2025-09-23T10:00:00",
+    "updatedAt": "2025-09-23T10:00:00"
+  },
+  {
+    "id": "txn_003",
+    "description": "Bus pass",
+    "amount": 45.00,
+    "category": "Transport",
+    "date": "2026-02-17"
+  },
+  {
+    "id": "txn_004",
+    "description": "Coffee coffee with friends",
+    "amount": 8.75,
+    "category": "Entertainment",
+    "date": "1880-09-27"
+  },
+  {
+    "id": "txn_005",
+    "description": "   Tuition fee payment   ",
+    "amount": 1500.00,
+    "category": "Fees",
+    "date": "2025-01-15",
+    "createdAt": "2025-01-15T09:00:00",
+    "updatedAt": "2025-01-15T09:00:00"
+  },
+  {
+    "id": "txn_006",
+    "description": "Snack: chocolate-bar",
+    "amount": 0.99,
+    "category": "Food",
+    "date": "2025-02-29"
+  },
+  {
+    "id": "txn_007",
+    "description": "Online course subscription",
+    "amount": 299.95,
+    "category": "Other",
+    "date": "2000-03-01",
+    "createdAt": "2025-03-01T11:00:00",
+    "updatedAt": "2025-03-01T11:00:00"
+  },
+  {
+    "id": "txn_008",
+    "description": "Movie night - popcorn & soda",
+    "amount": 15.50,
+    "category": "Entertainment",
+    "date": "2025-12-31"
+  },
+  {
+    "id": "txn_009",
+    "description": "Bus pass renewal",
+    "amount": 0.01,
+    "category": "Transport",
+    "date": "2025-01-01",
+    "createdAt": "2025-01-01T08:00:00",
+    "updatedAt": "2025-01-01T08:00:00"
+  },
+  {
+    "id": "txn_010",
+    "description": "Library late fee",
+    "amount": 5.00,
+    "category": "Fees",
+    "date": "2025-09-30"
+  },
+  {
+    "id": "txn_011",
+    "description": "Ice-cream ice-cream treat",
+    "amount": 3.75,
+    "category": "Food",
+    "date": "2025-07-04"
+  }
+]
