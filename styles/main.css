@@ -1,7 +1,10 @@
+
+/* Make width and height include padding and border */
 * {
     box-sizing: border-box;
 }
 
+/* Basic page style */
 body {
     margin: 0;
     font-family: "Segoe UI", sans-serif;
@@ -10,19 +13,19 @@ body {
     line-height: 1.6;
 }
 
+/* Make page take full height */
 html, body {
     height: 100%;
 }
-
+/* Main area spacing */
 main {
     min-height: calc(100vh - 300px);
-}
-
-main {
-    flex: 1;
+       flex: 1;
      padding: 2rem;
 }
 
+
+/* Center main content on big screens */
 @media (min-width: 1024px) {
     main {
         max-width: 1400px;
@@ -31,6 +34,8 @@ main {
     }
 }
 
+
+/* Section cards style */
 section {
     background-color: white;
     padding: 2rem;
@@ -40,6 +45,8 @@ section {
     scroll-margin-top: 180px;
 }
 
+
+/* Header top style */
 header {
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
     color: white;
@@ -62,6 +69,8 @@ nav {
     
 }
 
+
+/* Make header and nav bar sticky */
 #top-section {
     position: sticky;
     top: 0;
@@ -91,7 +100,7 @@ nav a:hover {
     background-color: #2563eb;
     color: white;
 }
-
+/* Tablet and higher screen sizes */
 @media (min-width: 768px) {
     nav ul {
         display: flex;
@@ -117,6 +126,7 @@ section section{
     display: block;
 }
 
+/*fade animation */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -139,6 +149,7 @@ section section{
     margin-bottom: 1rem;
 }
 
+/* Dashboard summary container */
 #dashboard > #dashboard-summary {
     display: grid;
     gap: 1rem;
@@ -168,7 +179,7 @@ section section{
     padding-top: 10px;
     padding-bottom: 25px;
 }
-
+/* Tablet layout and bigger screen */
 @media (min-width: 768px) {
     #dashboard > #dashboard-summary {
         grid-template-columns: 1fr 1fr;
@@ -204,11 +215,10 @@ section section{
     gap: 8px;
 }
 
-
 #records {
     overflow-x: auto;
 }
-
+/* Make table take full width */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -225,6 +235,7 @@ th {
     color: #6b7280;
 }
 
+/* Apply padding and border to both table header  and table datas */
 th,
 td {
     padding: 0.75rem;
@@ -235,6 +246,7 @@ tbody tr:hover {
     background-color: #f9fafb;
 }
 
+/* Search and regex container inside records section */
 #records > #search-regex {
     display: flex;
     flex-direction: column;
@@ -279,7 +291,7 @@ form fieldset {
 form div {
     margin-bottom: 1.2rem;
 }
-
+/* Style all input fields and select dropdowns */
 input,
 select {
     width: 100%;
@@ -289,12 +301,13 @@ select {
     font-size: 1rem;
 }
 
+/* Style input and select when focused */
 input:focus,
 select:focus {
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
-
+/* Style input or select when there is an error */
 input.error,
 select.error {
     border-color: #dc2626; 
@@ -311,6 +324,7 @@ span[role="alert"] {
     display: none;
 }
 
+/* Style all buttons */
 button {
     padding: 0.75rem 1rem;
     border-radius: 6px;
@@ -331,11 +345,13 @@ button:hover {
     gap: 1rem;
 }
 
+/* Style the import/export container */
 #import-export{
      margin-top: 2rem; 
      box-shadow:rgb(74, 73, 73); 
 }
 
+/* Style import buttons */
 .import-btn {
     display: inline-block;
     padding: 0.5rem;
@@ -575,6 +591,7 @@ select:focus {
     margin-right: 6px;
 }
 
+/* Mobile menu button */
 #mobile-menu-btn {
     display: block;
     background: none;
