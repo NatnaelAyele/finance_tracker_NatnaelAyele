@@ -5,6 +5,13 @@
     "category": "Food",
     "date": "2025-09-25"
   },
+   {
+    "id": "txn_011",
+    "description": "Ice-cream ice-cream treat",
+    "amount": 3.75,
+    "category": "Food",
+    "date": "2025-07-04"
+  },
   {
     "id": "txn_002",
     "description": "Chemistry textbook",
@@ -75,12 +82,5 @@
     "amount": 5.00,
     "category": "Fees",
     "date": "2025-09-30"
-  },
-  {
-    "id": "txn_011",
-    "description": "Ice-cream ice-cream treat",
-    "amount": 3.75,
-    "category": "Food",
-    "date": "2025-07-04"
   }
 ]
