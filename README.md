@@ -3,7 +3,7 @@
 A **web-based application** for students to track their expenses, manage budgets, and analyze spending trends. Built with HTML, CSS, and JavaScript, featuring modular architecture, validation, and accessibility-focused design.
 
 # Live website: https://natnaelayele.github.io/finance_tracker_NatnaelAyele/
-# Demo Video Link: https://youtu.be/hyo9wZqAvtg
+# Demo Video Link: https://youtu.be/o9hnClHq4IQ
 
 ---
 
